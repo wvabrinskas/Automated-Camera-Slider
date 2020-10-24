@@ -12,8 +12,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/william/Desktop/camera_slider/.pio/build/megaatmega2560/firmware.elf",
-            "toolchainBinDir": "C:/Users/william/.platformio/packages/toolchain-atmelavr/bin",
+            "executable": "/Users/williamvabrinskas/Documents/arduino/Automated-Camera-Slider/.pio/build/megaatmega2560/firmware.elf",
+            "toolchainBinDir": "/Users/williamvabrinskas/.platformio/packages/toolchain-atmelavr/bin",
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
@@ -24,8 +24,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/william/Desktop/camera_slider/.pio/build/megaatmega2560/firmware.elf",
-            "toolchainBinDir": "C:/Users/william/.platformio/packages/toolchain-atmelavr/bin",
+            "executable": "/Users/williamvabrinskas/Documents/arduino/Automated-Camera-Slider/.pio/build/megaatmega2560/firmware.elf",
+            "toolchainBinDir": "/Users/williamvabrinskas/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]

@@ -97,11 +97,11 @@ void Screen::update() {
             char str[8];
             itoa(value, str, 10);
             lastValue = value;
-            lcd.setCursor(columnForRow() - 1 , row);
+            lcd.setCursor(columnForRow(), row);
+            strcat(str, " ");
             write(str);
         }
     }
-
 
     ClickEncoder::Button b = encoder->getButton();
 
@@ -111,9 +111,9 @@ void Screen::update() {
             inRowMode = !inRowMode;
             if (inRowMode) {
                 row = 0;
-                lcd.noBlink();
+                lcd.cursor();
             } else {
-                lcd.blink();
+                lcd.noCursor();
             }
             break;
         }
