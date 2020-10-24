@@ -5,7 +5,10 @@
 const char* menu[ROWS] = { POSITION_MENU_ITEM, SPEED_MENU_ITEM, GO_TEXT };
 
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC);
+
 int16_t lastRow, lastValue, value, row = 0;
+int16_t lastPosition, lastSpeed;
+
 bool inRowMode = true;
 
 void interrupt() {
@@ -29,8 +32,8 @@ void Screen::start() {
   
     lastValue = -1;
     lastRow = -1;
-    this->speed = 100;
-    this->position = 1000;
+
+    encoder->setAccelerationEnabled(true);   
 }
 
 void Screen::buildMenu() {
@@ -71,12 +74,51 @@ void Screen::setSpeed(int speed) {
     this->speed = speed;
 }
 
+void Screen::updateSelectionForRow() {
+    int16_t newValue = encoder->getValue();
+
+    if (row == 0) {       
+        this->position += newValue;
+
+        if (this->position != lastPosition) {
+            lcd.setCursor(columnForRow(), row);
+            lastPosition = this->position;
+
+            char str[8];
+            itoa(position, str, 10);
+            strcat(str, " ");
+            write(str);
+        }
+
+    } else if (row == 1) {  
+        this->speed += newValue;
+        this->speed = max(this->speed, 0);
+
+        if (this->speed != lastSpeed) {
+            
+            lcd.setCursor(columnForRow(), row);
+            lastSpeed = this->speed;
+
+            char str[8];
+            itoa(speed, str, 10);
+            strcat(str, " ");
+            write(str);
+        }
+    }
+
+}
+
+
 int Screen::columnForRow() {
     if (sizeof(menu) / sizeof(const char*) > row) {
         const char* menuItem = menu[row];
         return strlen(menuItem);
     }
     return 0;
+}
+
+void Screen::move() {
+    motor.moveTo(this->position, this->speed);
 }
 
 void Screen::update() {
@@ -93,17 +135,7 @@ void Screen::update() {
         }
         updateCursor();
     } else {
-        value += encoder->getValue();
-        value = max(value, 0);
-
-        if (value != lastValue) {
-            char str[8];
-            itoa(value, str, 10);
-            lastValue = value;
-            lcd.setCursor(columnForRow(), row);
-            strcat(str, " ");
-            write(str);
-        }
+        updateSelectionForRow();
     }
 
     ClickEncoder::Button b = encoder->getButton();
@@ -113,9 +145,15 @@ void Screen::update() {
         case ClickEncoder::Clicked:
             inRowMode = !inRowMode;
             if (inRowMode) {
-                row = 0;
-                lcd.noBlink();
-                lcd.noCursor();
+                //start
+                if (row == 2) {
+                    move();
+                } else {
+                    row = 0;
+                    lcd.noBlink();
+                    lcd.noCursor();
+                }
+
             } else {
                 lcd.cursor();
                 lcd.blink();
