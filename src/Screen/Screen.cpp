@@ -5,7 +5,7 @@
 const char* menu[ROWS] = { POSITION_MENU_ITEM, SPEED_MENU_ITEM, GO_TEXT };
 
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC);
-int16_t lastRow, lastValue, value, row;
+int16_t lastRow, lastValue, value, row = 0;
 bool inRowMode = true;
 
 void interrupt() {
@@ -18,7 +18,7 @@ Screen::Screen() {
 
 void Screen::start() {
     lcd.begin(20, 4);
-    lcd.cursor();
+    lcd.noCursor();
     lcd.noAutoscroll();
     lcd.noBlink();
 
@@ -34,23 +34,25 @@ void Screen::start() {
 }
 
 void Screen::buildMenu() {
+    int selCharLen = strlen(SELECT_CHAR);
 
     for (int i = 0; i < sizeof(menu) / sizeof(const char*); i++) {
-        lcd.setCursor(0, i);
+        lcd.setCursor(selCharLen, i);
         const char* menuItem = menu[i];
         write(menuItem);
     }
+
+    updateCursor();
 }
 
-void Screen::updateMenu() {
-    lcd.setCursor(0, 0);
-    write(POSITION_MENU_ITEM);
+void Screen::clearCursor() {
+    lcd.setCursor(0, lastRow);
+    lcd.write(" ");
+}
 
-    lcd.setCursor(0, 1);
-    write(SPEED_MENU_ITEM);
-
-    lcd.setCursor(0, 2);
-    write(GO_TEXT);
+void Screen::updateCursor() {
+    lcd.setCursor(0,row);
+    lcd.write(SELECT_CHAR);
 }
 
 void Screen::write(const char* text) {
@@ -79,6 +81,7 @@ int Screen::columnForRow() {
 
 void Screen::update() {
     if (inRowMode) {
+        clearCursor();
         row += encoder->getValue();
         row = max(min(ROWS - 1, row), 0);
 
@@ -88,7 +91,7 @@ void Screen::update() {
             lastRow = row;
             lcd.setCursor(columnForRow() - 1, row);
         }
-
+        updateCursor();
     } else {
         value += encoder->getValue();
         value = max(value, 0);
@@ -111,12 +114,13 @@ void Screen::update() {
             inRowMode = !inRowMode;
             if (inRowMode) {
                 row = 0;
-                lcd.cursor();
-            } else {
+                lcd.noBlink();
                 lcd.noCursor();
+            } else {
+                lcd.cursor();
+                lcd.blink();
             }
             break;
         }
     }    
-
 }

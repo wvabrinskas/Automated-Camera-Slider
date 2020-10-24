@@ -8,6 +8,7 @@
 #define POSITION_MENU_ITEM "Position: "
 #define SPEED_MENU_ITEM "Speed: "
 #define GO_TEXT "Start"
+#define SELECT_CHAR ">"
 #define ROWS 3
 
 
@@ -16,7 +17,8 @@ class Screen {
     LiquidCrystal lcd = LiquidCrystal(16, 17, 23, 25, 27, 29);  
     void buildMenu();
     int columnForRow();
-    void updateMenu();
+    void updateCursor();
+    void clearCursor();
 
     public:
     int speed;
