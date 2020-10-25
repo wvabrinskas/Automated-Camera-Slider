@@ -8,18 +8,20 @@ ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC);
 
 int16_t lastRow, lastValue, value, row = 0;
 int16_t lastPosition, lastSpeed;
+bool moving = false;
 
 bool inRowMode = true;
 
 void interrupt() {
     encoder->service();
 }
-
 Screen::Screen() {
     
 }
 
 void Screen::start() {
+    this->speed = DEFAULT_SPEED;
+
     lcd.begin(20, 4);
     lcd.noCursor();
     lcd.noAutoscroll();
@@ -35,6 +37,7 @@ void Screen::start() {
 
     encoder->setAccelerationEnabled(true);   
     pinMode(X_END_STOP_PIN, INPUT_PULLUP);
+
 }
 
 void Screen::buildMenu() {
@@ -45,6 +48,13 @@ void Screen::buildMenu() {
         const char* menuItem = menu[i];
         write(menuItem);
     }
+
+    //set default value for Speed. 
+    //not a great way to do this for works for now
+    char str[8];
+    itoa(this->speed, str, 10);
+    lcd.setCursor(columnForRow(), row);
+    write(str);
 
     updateCursor();
 }
@@ -78,20 +88,6 @@ void Screen::setSpeed(float speed) {
 void Screen::updateSelectionForRow() {
     int16_t newValue = encoder->getValue();
 
-    // if (row == 0) {       
-    //     this->position += newValue;
-
-    //     if (this->position != lastPosition) {
-    //         lcd.setCursor(columnForRow(), row);
-    //         lastPosition = this->position;
-
-    //         char str[8];
-    //         itoa(position, str, 10);
-    //         strcat(str, " ");
-    //         write(str);
-    //     }
-
-    // } else
     if (row == 0) {  
         this->speed += newValue;
         this->speed = max(this->speed, 0);
@@ -107,7 +103,6 @@ void Screen::updateSelectionForRow() {
             write(str);
         }
     }
-
 }
 
 
@@ -120,13 +115,21 @@ int Screen::columnForRow() {
 }
 
 void Screen::move() {
-    if (this->speed > 0) {
+    int endStop = digitalRead(X_END_STOP_PIN);
+
+    if (this->speed > 0 && moving && endStop == HIGH) {
         motor.setSpeed(this->speed);
-        int endStop = digitalRead(X_END_STOP_PIN);
-        while (endStop == HIGH) {
-            endStop = digitalRead(X_END_STOP_PIN);
-            motor.move();
-        }
+        motor.move();
+        lcd.setCursor(0, 3);
+        write("Running...");
+        lcd.setCursor(1, 1);
+        write("Stop  ");
+    } else {
+        moving = false;
+        lcd.setCursor(0, 3);
+        write("          ");
+        lcd.setCursor(1, 1);
+        write("Start");
     }
 }
 
@@ -137,8 +140,6 @@ void Screen::update() {
         row = max(min(ROWS - 1, row), 0);
 
         if (row != lastRow) {
-            char str[8];
-            itoa(row, str, 10);
             lastRow = row;
             lcd.setCursor(columnForRow() - 1, row);
         }
@@ -153,14 +154,13 @@ void Screen::update() {
         switch (b) {
         case ClickEncoder::Clicked:
             if (row == 1) {
-                move();
+                moving = !moving;
             } else {
                 inRowMode = !inRowMode;
-                if (inRowMode) {
-                    //start
-                } 
             }
             break;
         }
     }    
+
+    move();
 }
