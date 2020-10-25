@@ -15,4 +15,5 @@ class Motor {
     public:
     Motor();
     void moveTo(int position, int speed);
+    void move();
 };

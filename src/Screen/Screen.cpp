@@ -34,6 +34,7 @@ void Screen::start() {
     lastRow = -1;
 
     encoder->setAccelerationEnabled(true);   
+    pinMode(X_END_STOP_PIN, INPUT_PULLUP);
 }
 
 void Screen::buildMenu() {
@@ -118,7 +119,11 @@ int Screen::columnForRow() {
 }
 
 void Screen::move() {
-    motor.moveTo(this->position, this->speed);
+    int endStop = digitalRead(X_END_STOP_PIN);
+    while (endStop == HIGH) {
+        endStop = digitalRead(X_END_STOP_PIN);
+        motor.move();
+    }
 }
 
 void Screen::update() {
@@ -143,20 +148,13 @@ void Screen::update() {
     if (b != ClickEncoder::Open) {
         switch (b) {
         case ClickEncoder::Clicked:
-            inRowMode = !inRowMode;
-            if (inRowMode) {
-                //start
-                if (row == 2) {
-                    move();
-                } else {
-                    row = 0;
-                    lcd.noBlink();
-                    lcd.noCursor();
-                }
-
+            if (row == 2) {
+                move();
             } else {
-                lcd.cursor();
-                lcd.blink();
+                inRowMode = !inRowMode;
+                if (inRowMode) {
+                    //start
+                } 
             }
             break;
         }

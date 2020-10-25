@@ -10,6 +10,7 @@
 Screen screen = Screen();
 
 void setup() {
+  Serial.begin(115200);
   screen.start();
 }
 

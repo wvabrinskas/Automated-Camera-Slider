@@ -3,6 +3,7 @@
 #include <ClickEncoder.h>
 #include <Motor/Motor.h>
 
+#define X_END_STOP_PIN 3
 #define BTN_EN1 31          // Encoder left direction, connected to Gadgets3D shield S_E1
 #define BTN_EN2 33          // Encoder right direction, connected to Gadgets3D shield S_E2
 #define BTN_ENC 35          // Encoder Click, connected to Gadgets3D shield S_EC

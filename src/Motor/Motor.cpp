@@ -19,3 +19,7 @@ void Motor::moveTo(int position, int speed) {
     stepper.runSpeedToPosition();
   }
 }
+
+void Motor::move() {
+  stepper.runSpeed();
+}
