@@ -16,4 +16,5 @@ class Motor {
     Motor();
     void moveTo(int position, int speed);
     void move();
+    void setSpeed(float speed);
 };

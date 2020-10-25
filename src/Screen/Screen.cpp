@@ -2,7 +2,7 @@
 #include "Screen.h"
 #include "TimerOne.h"
 
-const char* menu[ROWS] = { POSITION_MENU_ITEM, SPEED_MENU_ITEM, GO_TEXT };
+const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT };
 
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC);
 
@@ -71,27 +71,28 @@ void Screen::setPosition(int position) {
     this->position = position;
 }
 
-void Screen::setSpeed(int speed) {
+void Screen::setSpeed(float speed) {
     this->speed = speed;
 }
 
 void Screen::updateSelectionForRow() {
     int16_t newValue = encoder->getValue();
 
-    if (row == 0) {       
-        this->position += newValue;
+    // if (row == 0) {       
+    //     this->position += newValue;
 
-        if (this->position != lastPosition) {
-            lcd.setCursor(columnForRow(), row);
-            lastPosition = this->position;
+    //     if (this->position != lastPosition) {
+    //         lcd.setCursor(columnForRow(), row);
+    //         lastPosition = this->position;
 
-            char str[8];
-            itoa(position, str, 10);
-            strcat(str, " ");
-            write(str);
-        }
+    //         char str[8];
+    //         itoa(position, str, 10);
+    //         strcat(str, " ");
+    //         write(str);
+    //     }
 
-    } else if (row == 1) {  
+    // } else
+    if (row == 0) {  
         this->speed += newValue;
         this->speed = max(this->speed, 0);
 
@@ -119,10 +120,13 @@ int Screen::columnForRow() {
 }
 
 void Screen::move() {
-    int endStop = digitalRead(X_END_STOP_PIN);
-    while (endStop == HIGH) {
-        endStop = digitalRead(X_END_STOP_PIN);
-        motor.move();
+    if (this->speed > 0) {
+        motor.setSpeed(this->speed);
+        int endStop = digitalRead(X_END_STOP_PIN);
+        while (endStop == HIGH) {
+            endStop = digitalRead(X_END_STOP_PIN);
+            motor.move();
+        }
     }
 }
 
@@ -148,7 +152,7 @@ void Screen::update() {
     if (b != ClickEncoder::Open) {
         switch (b) {
         case ClickEncoder::Clicked:
-            if (row == 2) {
+            if (row == 1) {
                 move();
             } else {
                 inRowMode = !inRowMode;

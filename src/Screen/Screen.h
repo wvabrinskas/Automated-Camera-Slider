@@ -12,7 +12,7 @@
 #define GO_TEXT "Start"
 #define SELECT_CHAR ">"
 #define SPEED_STEPS 5
-#define ROWS 3
+#define ROWS 2
 
 
 class Screen {
@@ -27,13 +27,13 @@ class Screen {
     void move();
 
     public:
-    int speed;
+    float speed;
     int position;
 
     Screen();
     void start();
     void clear();
-    void setSpeed(int speed);
+    void setSpeed(float speed);
     void setPosition(int position);
     void write(const char* text);
     void update();

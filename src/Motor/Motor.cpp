@@ -20,6 +20,10 @@ void Motor::moveTo(int position, int speed) {
   }
 }
 
+void Motor::setSpeed(float speed) {
+  stepper.setSpeed(speed);
+}
+
 void Motor::move() {
   stepper.runSpeed();
 }
