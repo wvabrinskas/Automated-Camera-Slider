@@ -18,6 +18,26 @@ void Motor::setup() {
     setSteppersEnabled(false);
 }
 
+void Motor::home() {
+  int endStop = digitalRead(X_END_STOP_PIN);
+  setPosition(0);
+
+  while (endStop == HIGH) {
+    stepper.setSpeed(this->speed);
+    endStop = digitalRead(X_END_STOP_PIN);
+    moveToPosition();
+  }
+}
+
+void Motor::run() {
+  setPosition(X_MAX * X_STEPS_PER_MM);
+
+  while (stepper.distanceToGo() != 0) {
+    stepper.setSpeed(this->speed);
+    moveToPosition();
+  }
+}
+
 void Motor::toggleSteppers() {
   int stepperEnabled = digitalRead(X_ENABLE_PIN);
   digitalWrite(X_ENABLE_PIN, stepperEnabled == HIGH ? LOW : HIGH);
@@ -27,17 +47,16 @@ void Motor:: setSteppersEnabled(bool enabled) {
   digitalWrite(X_ENABLE_PIN, enabled == true ? LOW : HIGH);
 }
 
-void Motor::moveTo(int position, int speed) {
-  stepper.moveTo(position); 
-  stepper.setSpeed(speed); 
-
-  while (stepper.currentPosition() != stepper.targetPosition()) { 
-    stepper.runSpeedToPosition();
-  }
+void Motor::setPosition(float position) {
+  stepper.moveTo(position);   
 }
 
 void Motor::setSpeed(float speed) {
   stepper.setSpeed(speed);
+}
+
+void Motor::moveToPosition() {
+  stepper.runSpeedToPosition();
 }
 
 void Motor::move() {

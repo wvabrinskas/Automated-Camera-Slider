@@ -3,6 +3,11 @@
 #define DEFAULT_MAX_SPEED 5000
 #define ACCELERATION 4000
 
+//X AXIS MANAGEMENT
+//set negative for other direction
+#define X_MAX 400
+#define X_STEPS_PER_MM 80
+
 // Pins for X_AXIS the RAMPS board
 #define X_STEP_PIN 54
 #define X_DIR_PIN  55
@@ -18,9 +23,10 @@
 #define SPEED_MENU_ITEM "Speed: "
 #define GO_TEXT "Start"
 #define DISABLE_TEXT "Enable "
+#define HOME_TEXT "Home"
 #define RUNNING_TEXT "Running...."
 #define SELECT_CHAR ">"
 #define SPEED_STEPS 5
 #define LCD_HEIGHT 4
 #define LCD_WIDTH 20
-#define ROWS 3
+#define ROWS 4

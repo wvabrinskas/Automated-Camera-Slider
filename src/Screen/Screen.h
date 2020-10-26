@@ -13,9 +13,11 @@ class Screen {
     void clearCursor();
     void updateSelectionForRow();
     void move();
+    void home();
     void displayMessage(char* message);
     void clearMessage();
     void toggleSteppers(); 
+    void setSteppersEnabled(bool enabled);
     
     public:
     float speed;
