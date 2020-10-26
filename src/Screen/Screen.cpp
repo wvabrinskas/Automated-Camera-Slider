@@ -1,15 +1,16 @@
 
 #include "Screen.h"
 #include "TimerOne.h"
+#include "Configuration.h"
 
-const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT };
-
-ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC);
+const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT, DISABLE_TEXT };
+ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC, ENCODER_STEPS_PER_NOTCH);
 
 int16_t lastRow, lastValue, value, row = 0;
 int16_t lastPosition, lastSpeed;
-bool moving = false;
+int16_t bufferSpeed;
 
+bool moving = false;
 bool inRowMode = true;
 
 void interrupt() {
@@ -20,9 +21,12 @@ Screen::Screen() {
 }
 
 void Screen::start() {
-    this->speed = DEFAULT_SPEED;
+    motor.setup();
 
-    lcd.begin(20, 4);
+    this->speed = DEFAULT_SPEED;
+    bufferSpeed = this->speed;
+
+    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd.noCursor();
     lcd.noAutoscroll();
     lcd.noBlink();
@@ -90,7 +94,7 @@ void Screen::updateSelectionForRow() {
 
     if (row == 0) {  
         this->speed += newValue;
-        this->speed = max(this->speed, 0);
+        this->speed =  max(this->speed, 0);;
 
         if (this->speed != lastSpeed) {
             
@@ -102,6 +106,7 @@ void Screen::updateSelectionForRow() {
             strcat(str, " ");
             write(str);
         }
+        
     }
 }
 
@@ -114,23 +119,44 @@ int Screen::columnForRow() {
     return 0;
 }
 
+void Screen::displayMessage(char* message) {
+    lcd.setCursor(0, 3);
+    write(message);
+}
+
+void Screen::clearMessage() {
+    lcd.setCursor(0, 3);
+    write("                    ");
+}
+
 void Screen::move() {
     int endStop = digitalRead(X_END_STOP_PIN);
 
     if (this->speed > 0 && moving && endStop == HIGH) {
-        motor.setSpeed(this->speed);
         motor.move();
-        lcd.setCursor(0, 3);
-        write("Running...");
+        displayMessage(RUNNING_TEXT);
         lcd.setCursor(1, 1);
         write("Stop  ");
     } else {
         moving = false;
-        lcd.setCursor(0, 3);
-        write("          ");
+        clearMessage();
         lcd.setCursor(1, 1);
         write("Start");
     }
+}
+
+void Screen::toggleSteppers() {
+    int stepperEnabled = digitalRead(X_ENABLE_PIN);
+    if (stepperEnabled == HIGH) {
+        lcd.setCursor(1, 2);
+        write("Disable");
+        motor.setSteppersEnabled(true);
+    } else {
+        lcd.setCursor(1, 2);
+        write("Enable ");
+        motor.setSteppersEnabled(false);
+    }
+
 }
 
 void Screen::update() {
@@ -155,6 +181,16 @@ void Screen::update() {
         case ClickEncoder::Clicked:
             if (row == 1) {
                 moving = !moving;
+                if (moving) {
+                    if (digitalRead(X_ENABLE_PIN) == HIGH) {
+                        toggleSteppers();
+                    }
+                    motor.setSpeed(this->speed);
+                }
+            } else if (row == 2) {
+                if (!moving) {
+                    toggleSteppers();
+                }
             } else {
                 inRowMode = !inRowMode;
             }

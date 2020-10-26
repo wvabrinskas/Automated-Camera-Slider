@@ -6,6 +6,7 @@
  */
 #include "Arduino.h"
 #include <Screen/Screen.h>
+#include "Configuration.h"
 
 Screen screen = Screen();
 
