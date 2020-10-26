@@ -5,6 +5,7 @@
 
 const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT, HOME_TEXT,  DISABLE_TEXT };
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC, ENCODER_STEPS_PER_NOTCH);
+Motor motor = Motor();
 
 int16_t lastRow, lastValue, value, row = 0;
 int16_t lastPosition, lastSpeed;
@@ -102,7 +103,7 @@ void Screen::updateSelectionForRow() {
             
             lcd.setCursor(columnForRow(), row);
             lastSpeed = this->speed;
-            this->motor.speed = this->speed;
+            motor.speed = this->speed;
 
             char str[8];
             itoa(speed, str, 10);

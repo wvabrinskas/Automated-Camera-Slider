@@ -6,7 +6,7 @@
 class Screen {
     private: 
     LiquidCrystal lcd = LiquidCrystal(16, 17, 23, 25, 27, 29);  
-    Motor motor = Motor();
+
     void buildMenu();
     int columnForRow();
     void updateCursor();
