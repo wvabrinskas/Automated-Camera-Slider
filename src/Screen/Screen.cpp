@@ -42,10 +42,6 @@ void interrupt() {
     encoder->service();
 }
 
-void screenInterrupt() {
-    Serial.println("CLICKED");
-}
-
 Screen::Screen() {
     
 }
@@ -125,7 +121,7 @@ void Screen::updateSelectionForRow() {
 
     if (row == 0) {  
         this->speed += newValue;
-        this->speed =  min(max(this->speed, 0), DEFAULT_MAX_SPEED);
+        this->speed =  min(max(this->speed, DEFAULT_MIN_SPEED), DEFAULT_MAX_SPEED);
 
         if (this->speed != lastSpeed) {
             
