@@ -2,10 +2,10 @@
 #include "Configuration.h"
 
 Motor::Motor() {
-
 }
 
 void Motor::setup() {
+
     pinMode(X_ENABLE_PIN, OUTPUT);
     pinMode(X_STEP_PIN, OUTPUT);
     pinMode(X_DIR_PIN, OUTPUT);
@@ -20,7 +20,7 @@ void Motor::setup() {
 
 void Motor::home() {
   int endStop = digitalRead(X_END_STOP_PIN);
-  setPosition(0);
+  setPosition(X_MIN);
 
   while (endStop == HIGH) {
     stepper.setSpeed(this->speed);
@@ -30,9 +30,10 @@ void Motor::home() {
 }
 
 void Motor::run() {
-  setPosition(X_MAX * X_STEPS_PER_MM);
+  float pos = X_MAX * X_STEPS_PER_MM * X_DIR;
+  setPosition(pos);
 
-  while (stepper.distanceToGo() != 0) {
+  while (stepper.distanceToGo() > 0) {
     stepper.setSpeed(this->speed);
     moveToPosition();
   }
@@ -47,7 +48,7 @@ void Motor:: setSteppersEnabled(bool enabled) {
   digitalWrite(X_ENABLE_PIN, enabled == true ? LOW : HIGH);
 }
 
-void Motor::setPosition(float position) {
+void Motor::setPosition(long position) {
   stepper.moveTo(position);   
 }
 

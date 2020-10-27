@@ -12,8 +12,8 @@ class Screen {
     void updateCursor();
     void clearCursor();
     void updateSelectionForRow();
-    void move();
-    void home();
+    void updateMovingStatus();
+    //void home();
     void displayMessage(char* message);
     void clearMessage();
     void toggleSteppers(); 

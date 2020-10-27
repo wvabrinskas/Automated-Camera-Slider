@@ -1,12 +1,13 @@
 
-#define DEFAULT_SPEED 500
+#define DEFAULT_SPEED 2000
 #define DEFAULT_MAX_SPEED 5000
 #define ACCELERATION 4000
 
 //X AXIS MANAGEMENT
-//set negative for other direction
-#define X_MAX 400
-#define X_STEPS_PER_MM 80
+#define X_MAX 400 //in mm
+#define X_MIN 0 //in mm
+#define X_STEPS_PER_MM 400 //steps
+#define X_DIR -1 //-1 = CW, 1 = CW
 
 // Pins for X_AXIS the RAMPS board
 #define X_STEP_PIN 54

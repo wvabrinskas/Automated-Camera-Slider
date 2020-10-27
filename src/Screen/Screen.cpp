@@ -2,6 +2,7 @@
 #include "Screen.h"
 #include "TimerOne.h"
 #include "Configuration.h"
+#include "Scheduler.h"
 
 const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT, HOME_TEXT,  DISABLE_TEXT };
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC, ENCODER_STEPS_PER_NOTCH);
@@ -9,14 +10,42 @@ Motor motor = Motor();
 
 int16_t lastRow, lastValue, value, row = 0;
 int16_t lastPosition, lastSpeed;
-int16_t bufferSpeed;
 
 bool moving = false;
 bool inRowMode = true;
 
+void run() {
+    long pos = (long)X_MAX * (long)X_STEPS_PER_MM * X_DIR;
+
+    motor.setPosition(pos);
+    Serial.println(pos);
+
+    while (motor.stepper.distanceToGo() != 0 && moving) {
+        motor.stepper.setSpeed(motor.speed);
+        motor.moveToPosition();
+    }
+    moving = false;
+}
+
+void homeMotor() {
+    int endStop = digitalRead(X_END_STOP_PIN);
+    motor.setPosition(X_MIN);
+
+    while (endStop == HIGH) {
+        motor.stepper.setSpeed(motor.speed);
+        endStop = digitalRead(X_END_STOP_PIN);
+        motor.moveToPosition();
+    }
+}
+
 void interrupt() {
     encoder->service();
 }
+
+void screenInterrupt() {
+    Serial.println("CLICKED");
+}
+
 Screen::Screen() {
     
 }
@@ -26,7 +55,6 @@ void Screen::start() {
 
     //setup default speeds;
     this->speed = DEFAULT_SPEED;
-    bufferSpeed = this->speed;
     motor.speed = this->speed;
 
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -38,7 +66,7 @@ void Screen::start() {
     buildMenu();
     Timer1.initialize(1000);
     Timer1.attachInterrupt(interrupt); 
-  
+
     lastValue = -1;
     lastRow = -1;
 
@@ -114,7 +142,6 @@ void Screen::updateSelectionForRow() {
     }
 }
 
-
 int Screen::columnForRow() {
     if (sizeof(menu) / sizeof(const char*) > row) {
         const char* menuItem = menu[row];
@@ -133,16 +160,10 @@ void Screen::clearMessage() {
     write("                    ");
 }
 
-void Screen::home() {
-    motor.home();
-}
-
-void Screen::move() {
-
+void Screen::updateMovingStatus() {
     if (this->speed > 0 && moving) {
         lcd.setCursor(1, 1);
         write("Stop  ");
-        motor.run();
     } else {
         moving = false;
         lcd.setCursor(1, 1);
@@ -182,7 +203,6 @@ void Screen::update() {
     } else {
         updateSelectionForRow();
     }
-
     ClickEncoder::Button b = encoder->getButton();
 
     if (b != ClickEncoder::Open) {
@@ -194,12 +214,13 @@ void Screen::update() {
             if (moving) {
                 setSteppersEnabled(true);
             }
-            move();
+            updateMovingStatus();
+            run();
         //HOME
         } else if (row == 2) {
             if (!moving) {
                 setSteppersEnabled(true);
-                home();
+                homeMotor();
             }
         //ENABLE / DISABLE STEPPERS
         } else if (row == 3) {
@@ -213,4 +234,5 @@ void Screen::update() {
         break;
         }
     }    
+    updateMovingStatus();
 }
