@@ -125,7 +125,7 @@ void Screen::updateSelectionForRow() {
 
     if (row == 0) {  
         this->speed += newValue;
-        this->speed =  max(this->speed, 0);;
+        this->speed =  min(max(this->speed, 0), DEFAULT_MAX_SPEED);
 
         if (this->speed != lastSpeed) {
             
