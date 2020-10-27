@@ -1,6 +1,6 @@
 
 //Motor settings
-#define DEFAULT_SPEED 2000
+#define DEFAULT_SPEED 700
 #define DEFAULT_MIN_SPEED 0
 #define DEFAULT_MAX_SPEED 5000
 #define ACCELERATION 4000
