@@ -17,7 +17,39 @@ bool inRowMode = true;
 int addr = 0;
 long lastKnownPosition = X_MIN;
 
+
+void homeMotor() {
+    int endStop = digitalRead(X_END_STOP_PIN);
+
+    while (endStop == HIGH) {
+        motor.stepper.setSpeed(motor.speed);
+        endStop = digitalRead(X_END_STOP_PIN);
+        motor.stepper.run();
+    }
+
+    //move out of the way
+    motor.setPosition(50 * X_DIR);
+    while (motor.stepper.distanceToGo() != 0) {
+        motor.setSpeed(HOMING_SPEED);
+        motor.moveToPosition();
+    }
+
+    delay(100);
+    endStop = digitalRead(X_END_STOP_PIN);
+
+    while (endStop == HIGH) {
+        Serial.println("HOMING");
+        motor.stepper.setSpeed(HOMING_SPEED);
+        endStop = digitalRead(X_END_STOP_PIN);
+        motor.stepper.run();
+    }
+}
+
 void run() {
+    //safety home first
+    homeMotor();
+    delay(500);
+
     long pos = (long)X_MAX * (long)X_STEPS_PER_MM * X_DIR;
 
     motor.setPosition(pos);
@@ -28,17 +60,6 @@ void run() {
         motor.moveToPosition();
     }
     moving = false;
-}
-
-void homeMotor() {
-    int endStop = digitalRead(X_END_STOP_PIN);
-    motor.setPosition(lastKnownPosition - X_MIN);
-
-    while (endStop == HIGH) {
-        motor.stepper.setSpeed(motor.speed);
-        endStop = digitalRead(X_END_STOP_PIN);
-        motor.moveToPosition();
-    }
 }
 
 void interrupt() {
