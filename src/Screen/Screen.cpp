@@ -3,6 +3,7 @@
 #include "TimerOne.h"
 #include "Configuration.h"
 #include "Scheduler.h"
+#include <EEPROM.h>
 
 const char* menu[ROWS] = { SPEED_MENU_ITEM, GO_TEXT, HOME_TEXT,  DISABLE_TEXT };
 ClickEncoder *encoder = new ClickEncoder(BTN_EN1, BTN_EN2, BTN_ENC, ENCODER_STEPS_PER_NOTCH);
@@ -13,6 +14,8 @@ int16_t lastPosition, lastSpeed;
 
 bool moving = false;
 bool inRowMode = true;
+int addr = 0;
+long lastKnownPosition = X_MIN;
 
 void run() {
     long pos = (long)X_MAX * (long)X_STEPS_PER_MM * X_DIR;
@@ -29,7 +32,7 @@ void run() {
 
 void homeMotor() {
     int endStop = digitalRead(X_END_STOP_PIN);
-    motor.setPosition(X_MIN);
+    motor.setPosition(lastKnownPosition - X_MIN);
 
     while (endStop == HIGH) {
         motor.stepper.setSpeed(motor.speed);
@@ -69,6 +72,7 @@ void Screen::start() {
     encoder->setAccelerationEnabled(true);   
     pinMode(X_END_STOP_PIN, INPUT_PULLUP);
 
+    lastKnownPosition = EEPROM.read(0);
 }
 
 void Screen::buildMenu() {
@@ -231,4 +235,6 @@ void Screen::update() {
         }
     }    
     updateMovingStatus();
+
+    EEPROM.write(addr, motor.stepper.currentPosition());
 }
