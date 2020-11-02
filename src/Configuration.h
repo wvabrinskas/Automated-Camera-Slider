@@ -1,14 +1,14 @@
 
 //Motor settings
-#define DEFAULT_SPEED 2000
+#define DEFAULT_SPEED 700
 #define DEFAULT_MIN_SPEED 0
-#define DEFAULT_MAX_SPEED 5000
+#define DEFAULT_MAX_SPEED 1000
 #define ACCELERATION 4000
-#define HOMING_SPEED 1500
+#define HOMING_SPEED 900
 //X axis
-#define X_MAX 400 //in mm
+#define X_MAX 259 //in mm
 #define X_MIN 0 //in mm
-#define X_STEPS_PER_MM 400 //steps
+#define X_STEPS_PER_MM 388.3 //steps
 #define X_DIR -1 //-1 = CW, 1 = CW
 
 // Pins for X_AXIS the RAMPS board

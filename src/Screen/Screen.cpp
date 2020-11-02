@@ -11,6 +11,7 @@ Motor motor = Motor();
 
 int16_t lastRow, lastValue, value, row = 0;
 int16_t lastPosition, lastSpeed;
+long homePosition = 0;
 
 bool moving = false;
 bool inRowMode = true;
@@ -25,6 +26,7 @@ void homeMotor() {
         endStop = digitalRead(X_END_STOP_PIN);
         motor.stepper.run();
     }
+    homePosition = motor.stepper.currentPosition();
 }
 
 void run() {
@@ -32,7 +34,7 @@ void run() {
     homeMotor();
     delay(500);
 
-    long pos = (long)X_MAX * (long)X_STEPS_PER_MM * X_DIR;
+    float pos = (((float)X_MAX * (float)X_STEPS_PER_MM) * X_DIR) + homePosition;
 
     motor.setPosition(pos);
     Serial.println(pos);
