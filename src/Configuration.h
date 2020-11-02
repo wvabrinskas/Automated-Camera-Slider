@@ -4,7 +4,7 @@
 #define DEFAULT_MIN_SPEED 0
 #define DEFAULT_MAX_SPEED 5000
 #define ACCELERATION 4000
-#define HOMING_SPEED 700
+#define HOMING_SPEED 1500
 //X axis
 #define X_MAX 400 //in mm
 #define X_MIN 0 //in mm
