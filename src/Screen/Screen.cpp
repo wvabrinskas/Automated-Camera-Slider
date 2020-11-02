@@ -20,6 +20,7 @@ long lastKnownPosition = X_MIN;
 
 
 void homeMotor() {
+    motor.stepper.setMaxSpeed(MAX_HOMING_SPEED);
     int endStop = digitalRead(X_END_STOP_PIN);
     while (endStop == HIGH) {
         motor.stepper.setSpeed(HOMING_SPEED);
@@ -27,6 +28,8 @@ void homeMotor() {
         motor.stepper.run();
     }
     homePosition = motor.stepper.currentPosition();
+    
+    motor.stepper.setMaxSpeed(DEFAULT_MAX_SPEED);
 }
 
 void run() {
