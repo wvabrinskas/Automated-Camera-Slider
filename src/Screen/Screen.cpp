@@ -20,25 +20,7 @@ long lastKnownPosition = X_MIN;
 
 void homeMotor() {
     int endStop = digitalRead(X_END_STOP_PIN);
-
     while (endStop == HIGH) {
-        motor.stepper.setSpeed(motor.speed);
-        endStop = digitalRead(X_END_STOP_PIN);
-        motor.stepper.run();
-    }
-
-    //move out of the way
-    motor.setPosition(50 * X_DIR);
-    while (motor.stepper.distanceToGo() != 0) {
-        motor.setSpeed(HOMING_SPEED);
-        motor.moveToPosition();
-    }
-
-    delay(100);
-    endStop = digitalRead(X_END_STOP_PIN);
-
-    while (endStop == HIGH) {
-        Serial.println("HOMING");
         motor.stepper.setSpeed(HOMING_SPEED);
         endStop = digitalRead(X_END_STOP_PIN);
         motor.stepper.run();
